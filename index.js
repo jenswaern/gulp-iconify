@@ -5,7 +5,7 @@ var svg2png = require('gulp-svg2png');
 var sass    = require('gulp-sass');
 var gutil   = require('gulp-util');
 var path    = require('path');
-var fs      = require('fs')
+var fs      = require('fs');
 
 function getErrors(opts) {
     var error = {};
@@ -54,13 +54,18 @@ function setFallbacks(opts) {
         warning.scssOutput = "Info: No scssOutput folder defined. SCSS files will not be saved (temporary files will be saved to '/scss').";
     }
 
+    if(!opts.htmlTemplate) {
+        opts.htmlTemplate = path.join(__dirname, 'lib/htmloutput.mustache');
+        warning.styleTemplate = "Info: No htmlTemplate defined. Using default template.";
+    }
+
     if(!opts.styleTemplate) {
         opts.styleTemplate = path.join(__dirname, 'lib/output.mustache');
         warning.styleTemplate = "Info: No styleTemplate defined. Using default template.";
     }
 
     if(!opts.svgoOptions) {
-        opts.svgoOptions = { enabled: true }
+        opts.svgoOptions = { enabled: true };
         warning.svgoOptions = "Info: No SVGO options defined, enabling SVGO by default.";
     }
 
@@ -96,7 +101,9 @@ module.exports = function(opts) {
         gulp.src(opts.src)
             .pipe(iconify({
                 styleTemplate: opts.styleTemplate,
+                htmlTemplate: opts.htmlTemplate,
                 styleName: 'icons.svg.scss',
+                htmlOutput: opts.htmlOutput,
                 svgoOptions: opts.svgoOptions,
                 defaultWidth: opts.defaultWidth,
                 defaultHeight: opts.defaultHeight
@@ -108,6 +115,7 @@ module.exports = function(opts) {
                 .pipe(gulp.dest(opts.pngOutput))
                     .pipe(iconify({
                         styleTemplate: opts.styleTemplate,
+                        htmlTemplate: opts.htmlTemplate,
                         styleName: 'icons.png.scss',
                         defaultWidth: opts.defaultWidth,
                         defaultHeight: opts.defaultHeight
@@ -121,6 +129,7 @@ module.exports = function(opts) {
         var stream = gulp.src(opts.pngOutput+'/*.png')
             .pipe(iconify({
                 styleTemplate: opts.styleTemplate,
+                htmlTemplate: opts.htmlTemplate,
                 styleName: 'icons.fallback.scss',
                 noConvert: true,
                 cssOutputTarget: opts.cssOutput,
@@ -154,6 +163,6 @@ module.exports = function(opts) {
             }
         }
     });
-
+	
     gulp.start('iconify');
 };
